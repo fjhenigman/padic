@@ -45,23 +45,20 @@ The main test file `test_padic_conversion.py` contains:
 python -m unittest test_padic_conversion.py -v
 
 # Run just the zero handling test (should pass)
-python -c "
-import unittest
-from test_padic_conversion import TestPAdicConversion
-suite = unittest.TestSuite()
-suite.addTest(TestPAdicConversion('test_zero_handling'))
-unittest.TextTestRunner(verbosity=2).run(suite)
-"
+python run_test.py test_zero_handling
 
-# Run the demonstration script
-python demo_tests.py
+# Run a specific test by name
+python run_test.py test_rational_to_padic_to_rational_conversion
+
+# List all available test methods
+python run_test.py --list
 ```
 
 ## Files
 
 - `padic.py`: Stub implementation of the PAdic class
 - `test_padic_conversion.py`: Comprehensive test suite
-- `demo_tests.py`: Demonstration script showing test status
+- `run_test.py`: Script to run individual test methods
 - `__init__.py`: Package initialization
 - `IMPLEMENTATION_README.md`: This file
 
