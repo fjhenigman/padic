@@ -26,9 +26,6 @@ class PAdic:
             value: The number to represent as a p-adic. Can be:
                 - int: Integer value
                 - Fraction: Rational number (from fractions module)
-                - tuple: (rational_num, rational_den) representing rational_num/rational_den
-                - list: List of p-adic digits [a_k, a_{k+1}, ..., a_{k+n}] with optional valuation
-                - str: String representation like "3*5^2 + 2*5^3 + 1*5^4" or "1/5 + 2 + 3*5"
                 - PAdic: Another p-adic number (copy constructor)
             
             prime: Prime number p for the p-adic representation (must be prime)
@@ -50,13 +47,6 @@ x = PAdic(42, 5)  # 42 in 5-adic representation
 # From rational numbers
 from fractions import Fraction
 y = PAdic(Fraction(3, 7), 5)  # 3/7 in 5-adic representation
-z = PAdic((3, 7), 5)  # Same as above using tuple
-
-# From p-adic digit sequence (starting from p^valuation)
-w = PAdic([2, 1, 3], 5, valuation=-1)  # 2*5^(-1) + 1*5^0 + 3*5^1
-
-# From string representation
-s = PAdic("1/5 + 2 + 3*5", 5)  # 1*5^(-1) + 2*5^0 + 3*5^1
 
 # Copy constructor
 u = PAdic(x, 5)  # Copy of x
@@ -113,37 +103,10 @@ def to_rational(self, max_denominator_power=None):
 
 ### 2. Rational to P-adic Conversion
 
-```python
-@classmethod
-def from_rational(cls, rational, prime, precision=20):
-    """
-    Convert a rational number to p-adic representation.
-    
-    This implements the standard algorithm for p-adic expansion of rationals:
-    1. Factor out powers of p from numerator and denominator
-    2. Use long division in base p for the remaining fraction
-    3. Handle repeating patterns for infinite expansions
-    
-    Args:
-        rational: Fraction object or tuple (num, den) representing num/den
-        prime: Prime number for p-adic representation
-        precision: Number of p-adic digits to compute
-    
-    Returns:
-        PAdic: P-adic representation of the rational number
-        
-    Raises:
-        ValueError: If the rational cannot be represented (e.g., if denominator
-                   has prime factors other than p that don't cancel)
-    
-    Examples:
-        >>> PAdic.from_rational(Fraction(7, 25), 5)  # 7/25 = 7/5^2
-        PAdic with digits representing 7 * 5^(-2)
-        
-        >>> PAdic.from_rational(Fraction(1, 3), 5)  # 1/3 in 5-adics
-        PAdic with repeating expansion
-    """
-```
+The constructor handles rational to p-adic conversion internally using the standard algorithm:
+1. Factor out powers of p from numerator and denominator
+2. Use long division in base p for the remaining fraction  
+3. Handle repeating patterns for infinite expansions
 
 ### Alternative Conversion Methods
 
@@ -195,15 +158,12 @@ from fractions import Fraction
 # Create p-adic numbers
 x = PAdic(42, 5)                    # Integer to 5-adic
 y = PAdic(Fraction(3, 7), 5)        # Rational to 5-adic  
-z = PAdic("2 + 3*5 + 1*5^2", 5)     # String to 5-adic
 
 # Convert back to rationals
 print(x.to_rational())              # Fraction(42, 1)
 print(y.to_rational())              # Fraction(3, 7)
-print(z.to_rational())              # Fraction(42, 1)  # 2 + 15 + 25 = 42
 
 # Alternative constructors
-a = PAdic.from_rational(Fraction(1, 6), 5)
 b = PAdic.from_int(100, 7)
 ```
 
@@ -218,7 +178,7 @@ y = PAdic(Fraction(1, 3), 5, precision=10)
 
 # Check if conversion is exact
 rational_approx = x.to_rational()
-exact = (x == PAdic.from_rational(rational_approx, 5))
+exact = (x == PAdic(rational_approx, 5))
 ```
 
 ### Handling Special Cases
@@ -230,12 +190,6 @@ assert zero.is_zero == True
 
 # Negative numbers
 neg = PAdic(-42, 5)
-
-# Very large numbers
-big = PAdic(5**100, 5)  # High valuation
-
-# Very small numbers (negative valuation)
-small = PAdic(Fraction(1, 5**10), 5)  # Valuation -10
 ```
 
 ## Implementation Notes
@@ -254,8 +208,6 @@ small = PAdic(Fraction(1, 5**10), 5)  # Valuation -10
 
 - Store digits in little-endian order (lowest power first) for efficient arithmetic
 - Use lazy evaluation for infinite expansions
-- Implement caching for frequently used rational conversions
-- Optimize for common cases (integers, simple fractions)
 
 ### Error Handling
 
